@@ -1,0 +1,176 @@
+# 1. Install necessary libraries
+!pip install transformers datasets torch scikit-learn accelerate -q
+
+import pandas as pd
+import torch
+from datasets import load_dataset, Dataset
+from transformers import (
+    RobertaTokenizer, 
+    T5ForConditionalGeneration, 
+    Seq2SeqTrainingArguments, 
+    Seq2SeqTrainer,
+    DataCollatorForSeq2Seq
+)
+
+# 2. Load the Dataset
+# We use the dataset we found earlier which contains pairs of secure/insecure code
+print("Loading dataset...")
+dataset = load_dataset("CyberNative/Code_Vulnerability_Security_DPO", split="train")
+df = dataset.to_pandas()
+
+# 3. Filter & Format Data
+# We want Python and JavaScript
+target_langs = ['python', 'javascript']
+df_filtered = df[df['lang'].isin(target_langs)].copy()
+
+print(f"Original samples: {len(df)}")
+print(f"Filtered (JS/Python) samples: {len(df_filtered)}")
+
+# 4. Prepare Training Data (Transformation)
+# The dataset has 'rejected' (vulnerable) and 'chosen' (secure) columns.
+# We will split them to create a labeled classification dataset.
+
+training_pairs = []
+
+for _, row in df_filtered.iterrows():
+    # Vulnerability Type (e.g., "XSS", "SQL Injection")
+    vuln_type = row['vulnerability']
+    
+    # 1. Add the Vulnerable Sample
+    # Input: The insecure code
+    # Target: "Vulnerable: <Type>"
+    training_pairs.append({
+        "code": row['rejected'],
+        "label": f"Vulnerable: {vuln_type}"
+    })
+    
+    # 2. Add the Secure Sample
+    # Input: The secure code
+    # Target: "Safe"
+    training_pairs.append({
+        "code": row['chosen'],
+        "label": "Safe"
+    })
+
+# Convert to DataFrame
+train_df = pd.DataFrame(training_pairs)
+
+# Shuffle the data
+train_df = train_df.sample(frac=1, random_state=42).reset_index(drop=True)
+
+# Use a smaller subset for quick testing (Optional: remove this line for full training)
+train_df = train_df.head(1000) 
+
+print(f"Final training examples: {len(train_df)}")
+print(train_df.head())
+
+# 5. Initialize Tokenizer & Model
+model_name = "Salesforce/codet5-small" # Efficient for Colab
+tokenizer = RobertaTokenizer.from_pretrained(model_name)
+model = T5ForConditionalGeneration.from_pretrained(model_name)
+
+# Move model to GPU if available
+device = "cuda" if torch.cuda.is_available() else "cpu"
+model.to(device)
+print(f"Using device: {device}")
+
+# 6. Preprocessing Function
+def preprocess_function(examples):
+    # Prompt engineering: We tell the model what to do
+    inputs = ["analyze security: " + code for code in examples["code"]]
+    targets = examples["label"]
+    
+    # Tokenize inputs
+    model_inputs = tokenizer(inputs, max_length=512, truncation=True, padding="max_length")
+    
+    # Tokenize targets (labels)
+    labels = tokenizer(targets, max_length=32, truncation=True, padding="max_length")
+    
+    model_inputs["labels"] = labels["input_ids"]
+    return model_inputs
+
+# Create HF Dataset
+hf_train_dataset = Dataset.from_pandas(train_df)
+# Split into Train/Test
+hf_dataset_dict = hf_train_dataset.train_test_split(test_size=0.1)
+
+# Apply tokenization
+tokenized_datasets = hf_dataset_dict.map(preprocess_function, batched=True)
+
+# 7. Training Arguments
+training_args = Seq2SeqTrainingArguments(
+    output_dir="./securescape_model",
+    eval_strategy="epoch",
+    learning_rate=2e-5,
+    per_device_train_batch_size=8,  # Reduce if you get OOM (Out of Memory) errors
+    per_device_eval_batch_size=8,
+    weight_decay=0.01,
+    save_total_limit=2,
+    num_train_epochs=3,             # 3 epochs is a good start
+    predict_with_generate=True,
+    fp16=torch.cuda.is_available(), # Faster training on GPU
+    logging_steps=50,
+)
+
+# 8. Trainer
+trainer = Seq2SeqTrainer(
+    model=model,
+    args=training_args,
+    train_dataset=tokenized_datasets["train"],
+    eval_dataset=tokenized_datasets["test"],
+    tokenizer=tokenizer,
+)
+
+# START TRAINING
+print("Starting training... this might take 10-20 minutes depending on dataset size.")
+trainer.train()
+
+# 9. Prediction Function
+def analyze_code(code_snippet):
+    # Prepare input
+    input_text = "analyze security: " + code_snippet
+    input_ids = tokenizer(input_text, return_tensors="pt", max_length=512, truncation=True).input_ids.to(device)
+    
+    # Generate prediction
+    outputs = model.generate(input_ids, max_length=32)
+    prediction = tokenizer.decode(outputs[0], skip_special_tokens=True)
+    
+    return prediction
+
+# --- TEST CASES ---
+
+# Test 1: Vulnerable XSS (React)
+vulnerable_code = """
+import React from 'react';
+function SearchResults({ query }) {
+  return (
+    <div>
+      <h1>Results for:</h1>
+      <div dangerouslySetInnerHTML={{ __html: query }} />
+    </div>
+  );
+}
+"""
+
+# Test 2: Safe XSS (React)
+secure_code = """
+import React from 'react';
+function SearchResults({ query }) {
+  return (
+    <div>
+      <h1>Results for: {query}</h1>
+    </div>
+  );
+}
+"""
+
+print("-" * 50)
+print("TEST 1: Checking Vulnerable Code...")
+result_vuln = analyze_code(vulnerable_code)
+print(f"Model Prediction: {result_vuln}")
+
+print("-" * 50)
+print("TEST 2: Checking Secure Code...")
+result_safe = analyze_code(secure_code)
+print(f"Model Prediction: {result_safe}")
+ 
