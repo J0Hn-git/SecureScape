@@ -10,6 +10,7 @@ import SQLInjection from './pages/SQLInjection';
 import XSS from './pages/XSS';
 import CSRF from './pages/CSRF';
 import CodeRegenerator from './pages/CodeRegenerator';
+import { ThemeProvider } from './contexts/ThemeContext';
 
 // Component to initialize request logger
 const RequestLoggerInitializer = () => {
@@ -73,6 +74,7 @@ function App() {
         </Routes>
         </Router>
       </RequestLoggerProvider>
+      <ThemeProvider />
     </SecurityModeProvider>
   );
 }
