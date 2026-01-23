@@ -1,5 +1,6 @@
 import React from 'react';
 import { useSecurityMode } from '../../contexts/SecurityModeContext';
+import { useTheme } from '../../contexts/ThemeContext';
 
 const Input = ({ 
   label, 
@@ -13,21 +14,31 @@ const Input = ({
   ...props 
 }) => {
   const { mode } = useSecurityMode();
+  const { isDarkMode } = useTheme();
   
   const inputId = `input-${label?.toLowerCase().replace(/\s+/g, '-') || 'input'}`;
   
-  const baseClasses = 'w-full px-3 py-2 border rounded-md transition-colors duration-200 focus-ring';
+  // Theme-aware colors
+  const labelColor = isDarkMode ? 'text-gray-300' : 'text-gray-700';
+  const inputBg = isDarkMode ? 'bg-gray-700' : 'bg-white';
+  const inputText = isDarkMode ? 'text-gray-200' : 'text-gray-900';
+  const inputBorder = isDarkMode ? 'border-gray-600' : 'border-gray-300';
+  const placeholderColor = isDarkMode ? 'placeholder-gray-400' : 'placeholder-gray-400';
+  
+  const baseClasses = `w-full px-3 py-2 border rounded-md transition-colors duration-200 focus-ring ${inputBg} ${inputText} ${placeholderColor}`;
+  
   const modeClasses = mode === 'secure' 
-    ? 'border-gray-300 focus:border-green-500 focus:ring-green-500' 
-    : 'border-gray-300 focus:border-red-500 focus:ring-red-500';
-  const errorClasses = error ? 'border-red-500 focus:border-red-500 focus:ring-red-500' : '';
+    ? 'focus:border-green-500 focus:ring-green-500' 
+    : 'focus:border-red-500 focus:ring-red-500';
+  
+  const errorClasses = error ? 'border-red-500 focus:border-red-500 focus:ring-red-500' : inputBorder;
   
   return (
     <div className="w-full">
       {label && (
         <label 
           htmlFor={inputId} 
-          className="block text-sm font-medium text-gray-700 mb-1"
+          className={`block text-sm font-medium ${labelColor} mb-1 transition-colors duration-300`}
         >
           {label}
           {required && <span className="text-red-500 ml-1">*</span>}

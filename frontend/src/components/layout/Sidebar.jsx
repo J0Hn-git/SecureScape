@@ -2,12 +2,13 @@ import React, { useState } from 'react';
 import { NavLink, useLocation } from 'react-router-dom';
 import { FiDatabase, FiCode, FiLink, FiMenu, FiX, FiZap } from 'react-icons/fi';
 import { useSecurityMode } from '../../contexts/SecurityModeContext';
-
+import { useTheme } from '../../contexts/ThemeContext';
 
 const Sidebar = () => {
   const [isOpen, setIsOpen] = useState(false);
   const location = useLocation();
   const { mode } = useSecurityMode();
+  const { isDarkMode } = useTheme();
   
   const navItems = [
     {
@@ -37,35 +38,39 @@ const Sidebar = () => {
     : 'bg-red-600';
   
   const activeText = 'text-white';
-  const inactiveBg = 'bg-transparent hover:bg-gray-100';
-  const inactiveText = 'text-gray-700';
+  const inactiveBg = isDarkMode 
+    ? 'bg-transparent hover:bg-gray-700' 
+    : 'bg-transparent hover:bg-gray-100';
+  const inactiveText = isDarkMode ? 'text-gray-300' : 'text-gray-700';
   
-  // Close sidebar when route changes (mobile)
+  const sidebarBg = isDarkMode ? 'bg-gray-800' : 'bg-gray-50';
+  const sidebarBorder = isDarkMode ? 'border-gray-700' : 'border-gray-200';
+  const buttonBg = isDarkMode ? 'bg-gray-800' : 'bg-white';
+  const buttonText = isDarkMode ? 'text-gray-200' : 'text-gray-700';
+  
   React.useEffect(() => {
     setIsOpen(false);
   }, [location.pathname]);
   
   return (
     <>
-      {/* Mobile menu button */}
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="lg:hidden fixed top-4 left-4 z-50 p-2 bg-white rounded-md shadow-md focus-ring"
+        className={`lg:hidden fixed top-4 left-4 z-50 p-2 ${buttonBg} ${buttonText} rounded-md shadow-md focus-ring transition-colors duration-300`}
         aria-label="Toggle navigation menu"
         aria-expanded={isOpen}
       >
         {isOpen ? (
-          <FiX className="w-6 h-6 text-gray-700" />
+          <FiX className="w-6 h-6" />
         ) : (
-          <FiMenu className="w-6 h-6 text-gray-700" />
+          <FiMenu className="w-6 h-6" />
         )}
       </button>
       
-      {/* Sidebar */}
       <aside
         className={`
-          fixed top-16 left-0 h-[calc(100vh-4rem)] w-64 bg-gray-50 border-r border-gray-200 z-40
-          transform transition-transform duration-300 ease-in-out
+          fixed top-16 left-0 h-[calc(100vh-4rem)] w-64 ${sidebarBg} border-r ${sidebarBorder} z-40
+          transform transition-all duration-300 ease-in-out
           lg:translate-x-0
           ${isOpen ? 'translate-x-0' : '-translate-x-full'}
         `}
@@ -96,7 +101,6 @@ const Sidebar = () => {
         </nav>
       </aside>
       
-      {/* Overlay for mobile */}
       {isOpen && (
         <div
           className="lg:hidden fixed inset-0 bg-black bg-opacity-50 z-30"

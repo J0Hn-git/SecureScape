@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useSecurityMode } from '../contexts/SecurityModeContext';
+import { useTheme } from '../contexts/ThemeContext';
 import DemoCard from '../components/common/DemoCard';
 import Textarea from '../components/common/Textarea';
 import Button from '../components/common/Button';
@@ -11,9 +12,20 @@ import { xssAPI } from '../services/api';
 
 const XSS = () => {
   const { mode, isSecure } = useSecurityMode();
+  const { isDarkMode } = useTheme();
   const [comment, setComment] = useState('');
   const [comments, setComments] = useState([]);
   const [loading, setLoading] = useState(false);
+  
+  // Theme-aware colors
+  const textPrimary = isDarkMode ? 'text-gray-100' : 'text-gray-900';
+  const textSecondary = isDarkMode ? 'text-gray-400' : 'text-gray-600';
+  const textTertiary = isDarkMode ? 'text-gray-300' : 'text-gray-700';
+  const textMuted = isDarkMode ? 'text-gray-500' : 'text-gray-500';
+  const codeBg = isDarkMode ? 'bg-gray-700' : 'bg-gray-100';
+  const borderColor = isDarkMode ? 'border-gray-700' : 'border-gray-200';
+  const commentBg = isDarkMode ? 'bg-gray-800' : 'bg-gray-50';
+  const renderedBg = isDarkMode ? 'bg-gray-900' : 'bg-white';
   
   useEffect(() => {
     loadComments();
@@ -54,8 +66,10 @@ const XSS = () => {
     <div className="space-y-6">
       {/* Header */}
       <div>
-        <h1 className="text-3xl font-bold text-gray-900 mb-2">Cross-Site Scripting (XSS) Demo</h1>
-        <p className="text-gray-600">
+        <h1 className={`text-3xl font-bold ${textPrimary} mb-2 transition-colors duration-300`}>
+          Cross-Site Scripting (XSS) Demo
+        </h1>
+        <p className={`${textSecondary} transition-colors duration-300`}>
           Learn how XSS attacks inject malicious scripts into web pages and how to prevent them.
         </p>
       </div>
@@ -86,7 +100,10 @@ const XSS = () => {
           <li><strong>DOM-based XSS:</strong> Vulnerability exists in client-side code</li>
         </ul>
         <p>
-          <strong>Example attack payload:</strong> <code className="bg-gray-200 px-1 rounded">&lt;script&gt;alert('XSS')&lt;/script&gt;</code>
+          <strong>Example attack payload:</strong>{' '}
+          <code className={`${codeBg} px-1 rounded transition-colors duration-300`}>
+            &lt;script&gt;alert('XSS')&lt;/script&gt;
+          </code>
         </p>
       </InfoPanel>
       
@@ -104,8 +121,11 @@ const XSS = () => {
             rows={4}
             required
           />
-          <div className="text-sm text-gray-500">
-            Try entering: <code className="bg-gray-100 px-1 rounded">&lt;script&gt;alert('XSS')&lt;/script&gt;</code>
+          <div className={`text-sm ${textMuted} transition-colors duration-300`}>
+            Try entering:{' '}
+            <code className={`${codeBg} px-1 rounded transition-colors duration-300`}>
+              &lt;script&gt;alert('XSS')&lt;/script&gt;
+            </code>
           </div>
           <Button type="submit" disabled={loading}>
             {loading ? 'Submitting...' : 'Submit Comment'}
@@ -119,19 +139,21 @@ const XSS = () => {
         badge={comments.length > 0 ? `${comments.length} comments` : 'No comments'}
       >
         {comments.length === 0 ? (
-          <p className="text-gray-500">No comments yet. Be the first to comment!</p>
+          <p className={`${textMuted} transition-colors duration-300`}>
+            No comments yet. Be the first to comment!
+          </p>
         ) : (
           <div className="space-y-4">
             {comments.map((item, idx) => (
               <div 
                 key={idx} 
-                className="border border-gray-200 rounded-lg p-4 bg-gray-50"
+                className={`border ${borderColor} rounded-lg p-4 ${commentBg} transition-colors duration-300`}
               >
                 <div className="mb-2">
                   <Badge variant="info" className="text-xs">Comment #{idx + 1}</Badge>
                 </div>
                 <div className="mb-2">
-                  <strong className="text-sm text-gray-700">Raw Input:</strong>
+                  <strong className={`text-sm ${textTertiary} transition-colors duration-300`}>Raw Input:</strong>
                   <CodeBlock 
                     code={item.text}
                     language="text"
@@ -139,11 +161,11 @@ const XSS = () => {
                   />
                 </div>
                 <div>
-                  <strong className="text-sm text-gray-700">Rendered Output:</strong>
+                  <strong className={`text-sm ${textTertiary} transition-colors duration-300`}>Rendered Output:</strong>
                   <div 
-                    className={`mt-2 p-3 rounded border ${
-                      isSecure ? 'bg-white border-green-200' : 'bg-white border-red-200'
-                    }`}
+                    className={`mt-2 p-3 rounded border ${renderedBg} ${
+                      isSecure ? 'border-green-200' : 'border-red-200'
+                    } transition-colors duration-300`}
                     dangerouslySetInnerHTML={isSecure 
                       ? { __html: escapeHtml(item.text) }
                       : { __html: item.text }
@@ -165,6 +187,7 @@ const XSS = () => {
               code={`// Insecure: Direct HTML rendering
 <div>{comment.text}</div>
 
+
 // User input: <script>alert('XSS')</script>
 // Result: Script executes!`}
               language="javascript"
@@ -175,6 +198,7 @@ const XSS = () => {
             <CodeBlock
               code={`// Secure: HTML entity encoding
 <div>{escapeHtml(comment.text)}</div>
+
 
 // User input: <script>alert('XSS')</script>
 // Result: Displayed as text, no execution`}
@@ -188,8 +212,10 @@ const XSS = () => {
       <DemoCard title="Secure Implementation" badge="Best Practices">
         <div className="space-y-4">
           <div>
-            <h4 className="font-semibold text-gray-900 mb-2">HTML Entity Encoding</h4>
-            <p className="text-gray-700 mb-3">
+            <h4 className={`font-semibold ${textPrimary} mb-2 transition-colors duration-300`}>
+              HTML Entity Encoding
+            </h4>
+            <p className={`${textTertiary} mb-3 transition-colors duration-300`}>
               Convert special characters to their HTML entity equivalents. This prevents browsers 
               from interpreting user input as HTML or JavaScript.
             </p>
@@ -200,6 +226,7 @@ const XSS = () => {
   return div.innerHTML;
 }
 
+
 // Usage
 <div dangerouslySetInnerHTML={{ 
   __html: escapeHtml(userInput) 
@@ -209,8 +236,10 @@ const XSS = () => {
           </div>
           
           <div>
-            <h4 className="font-semibold text-gray-900 mb-2">Additional Security Measures</h4>
-            <ul className="list-disc list-inside space-y-1 text-gray-700">
+            <h4 className={`font-semibold ${textPrimary} mb-2 transition-colors duration-300`}>
+              Additional Security Measures
+            </h4>
+            <ul className={`list-disc list-inside space-y-1 ${textTertiary} transition-colors duration-300`}>
               <li><strong>Content Security Policy (CSP):</strong> Restrict which scripts can execute</li>
               <li><strong>Input Validation:</strong> Validate and sanitize all user input</li>
               <li><strong>Output Encoding:</strong> Always encode output based on context (HTML, JavaScript, URL)</li>

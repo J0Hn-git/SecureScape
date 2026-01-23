@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useSecurityMode } from '../contexts/SecurityModeContext';
+import { useTheme } from '../contexts/ThemeContext';
 import DemoCard from '../components/common/DemoCard';
 import Input from '../components/common/Input';
 import Button from '../components/common/Button';
@@ -11,10 +12,16 @@ import { csrfAPI } from '../services/api';
 
 const CSRF = () => {
   const { mode, isSecure } = useSecurityMode();
+  const { isDarkMode } = useTheme();
   const [formData, setFormData] = useState({ to: '', amount: '' });
   const [csrfToken, setCsrfToken] = useState('');
   const [result, setResult] = useState(null);
   const [loading, setLoading] = useState(false);
+
+  // Theme-aware colors
+  const textPrimary = isDarkMode ? 'text-gray-100' : 'text-gray-900';
+  const textSecondary = isDarkMode ? 'text-gray-400' : 'text-gray-600';
+  const textTertiary = isDarkMode ? 'text-gray-300' : 'text-gray-700';
 
   useEffect(() => {
     loadForm();
@@ -59,10 +66,10 @@ const CSRF = () => {
     <div className="space-y-6">
       {/* Header */}
       <div>
-        <h1 className="text-3xl font-bold text-gray-900 mb-2">
+        <h1 className={`text-3xl font-bold ${textPrimary} mb-2 transition-colors duration-300`}>
           Cross-Site Request Forgery (CSRF) Demo
         </h1>
-        <p className="text-gray-600">
+        <p className={`${textSecondary} transition-colors duration-300`}>
           Learn how CSRF attacks trick users into performing unwanted actions and how to prevent them.
         </p>
       </div>
@@ -97,7 +104,9 @@ const CSRF = () => {
         {isSecure && csrfToken && (
           <Alert type="info" title="CSRF Token">
             <div className="flex justify-between items-center">
-              <code>{csrfToken}</code>
+              <code className={`${isDarkMode ? 'text-blue-300' : 'text-blue-800'} transition-colors duration-300`}>
+                {csrfToken}
+              </code>
               <Badge variant="secure">Protected</Badge>
             </div>
           </Alert>
@@ -132,15 +141,15 @@ const CSRF = () => {
         )}
       </DemoCard>
 
-      {/* ✅ UPDATED: Live Attack Simulation */}
+      {/* Attack Simulation */}
       <DemoCard title="Attack Simulation" badge="Live Demo">
         <div className="space-y-4">
-          <p className="text-gray-700">
+          <p className={`${textTertiary} transition-colors duration-300`}>
             Click below to simulate visiting a malicious website in a new tab.
           </p>
 
           <Button
-            variant="danger"
+            variant="secondary"
             onClick={() =>
               window.open(
                 'http://localhost:8081',

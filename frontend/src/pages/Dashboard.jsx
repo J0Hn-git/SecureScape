@@ -2,12 +2,14 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import { FiDatabase, FiCode, FiLink, FiArrowRight, FiShield, FiZap } from 'react-icons/fi';
 import { useSecurityMode } from '../contexts/SecurityModeContext';
+import { useTheme } from '../contexts/ThemeContext';
 import DemoCard from '../components/common/DemoCard';
 import Alert from '../components/common/Alert';
 import Badge from '../components/common/Badge';
 
 const Dashboard = () => {
   const { mode, isSecure } = useSecurityMode();
+  const { isDarkMode } = useTheme();
   
   const colorMap = {
     blue: {
@@ -26,6 +28,18 @@ const Dashboard = () => {
       text: 'text-orange-600',
     },
   };
+  
+  // Theme-aware colors
+  const textPrimary = isDarkMode ? 'text-gray-100' : 'text-gray-900';
+  const textSecondary = isDarkMode ? 'text-gray-400' : 'text-gray-600';
+  const textTertiary = isDarkMode ? 'text-gray-300' : 'text-gray-700';
+  const cardBg = isDarkMode ? 'bg-gray-800' : 'bg-white';
+  const cardBorder = isDarkMode ? 'border-gray-700' : 'border-gray-200';
+  const cardHoverBorder = isDarkMode ? 'hover:border-blue-400' : 'hover:border-blue-500';
+  const aiSectionBg = isDarkMode 
+    ? 'bg-gradient-to-r from-gray-800 to-gray-700' 
+    : 'bg-gradient-to-r from-white-50 to-white-50';
+  const aiSectionBorder = isDarkMode ? 'border-gray-600' : 'border-blue-200';
   
   const attackCategories = [
     {
@@ -57,9 +71,11 @@ const Dashboard = () => {
       <div className="text-center py-8">
         <div className="flex items-center justify-center gap-3 mb-4">
           <FiShield className="w-12 h-12 text-blue-600" />
-          <h1 className="text-4xl font-bold text-gray-900">SecureScape</h1>
+          <h1 className={`text-4xl font-bold ${textPrimary} transition-colors duration-300`}>
+            SecureScape
+          </h1>
         </div>
-        <p className="text-xl text-gray-600 max-w-2xl mx-auto mb-6">
+        <p className={`text-xl ${textSecondary} max-w-2xl mx-auto mb-6 transition-colors duration-300`}>
           An educational platform demonstrating common web security vulnerabilities 
           and their secure mitigations.
         </p>
@@ -82,7 +98,9 @@ const Dashboard = () => {
       
       {/* Attack Categories */}
       <div>
-        <h2 className="text-2xl font-semibold text-gray-900 mb-6">Attack Demonstrations</h2>
+        <h2 className={`text-2xl font-semibold ${textPrimary} mb-6 transition-colors duration-300`}>
+          Attack Demonstrations
+        </h2>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           {attackCategories.map((category) => {
             const Icon = category.icon;
@@ -90,17 +108,17 @@ const Dashboard = () => {
               <Link
                 key={category.path}
                 to={category.path}
-                className="block bg-white border border-gray-200 rounded-lg p-6 hover:shadow-lg transition-all duration-200 hover:border-blue-500 focus-ring group"
+                className={`block ${cardBg} border ${cardBorder} rounded-lg p-6 hover:shadow-lg transition-all duration-200 ${cardHoverBorder} focus-ring group`}
               >
                 <div className="flex items-start gap-4">
                   <div className={`p-3 rounded-lg ${colorMap[category.color].bg} ${colorMap[category.color].bgHover} transition-colors`}>
                     <Icon className={`w-6 h-6 ${colorMap[category.color].text}`} />
                   </div>
                   <div className="flex-1">
-                    <h3 className="text-xl font-semibold text-gray-900 mb-2 group-hover:text-blue-600 transition-colors">
+                    <h3 className={`text-xl font-semibold ${textPrimary} mb-2 group-hover:text-blue-600 transition-colors`}>
                       {category.title}
                     </h3>
-                    <p className="text-gray-600 text-sm mb-4">
+                    <p className={`${textSecondary} text-sm mb-4 transition-colors duration-300`}>
                       {category.description}
                     </p>
                     <div className="flex items-center text-blue-600 font-medium text-sm">
@@ -116,14 +134,12 @@ const Dashboard = () => {
       </div>
 
       <div>
-        <h2 className='text-2xl font-semibold text-gray-900 mb-6'>
+        <h2 className={`text-2xl font-semibold ${textPrimary} mb-6 transition-colors duration-300`}>
           AI-Powered Code Analysis
         </h2>
         <Link
           to="/code-regenerator"
-          className='block bg-gradient-to-r from-white-50 to-white-50 border-2 border-
-                     blue-200 rounded-lg p-8 hover:shadow-xl transition-all duration-200 hover:border-blue-400
-                     focus-ring group'
+          className={`block ${aiSectionBg} border-2 ${aiSectionBorder} rounded-lg p-8 hover:shadow-xl transition-all duration-200 hover:border-blue-400 focus-ring group`}
         >
           <div className='flex items-start gap-6'>
             <div className='p-4 bg-green-100 rounded-lg group-hover:bg-green-200 transition-colors'>
@@ -131,26 +147,25 @@ const Dashboard = () => {
             </div>
             <div className='flex-1'>
               <div className='flex items-center gap-3 mb-3'>
-                <h3 className='text-2xl font-semibold text-gray-900 group-hover:text-blue-600
-                               transition-colors'>
-                                Smart Code Analyzer
+                <h3 className={`text-2xl font-semibold ${textPrimary} group-hover:text-blue-600 transition-colors`}>
+                  Smart Code Analyzer
                 </h3>
                 <Badge variant='success'>AI-Powered</Badge>
               </div>
-              <p className='text-gray-700 text-base mb-4'>
-                Upload your Java, Python or JavaScript code to automatically detect vulnerabilites
+              <p className={`${textTertiary} text-base mb-4 transition-colors duration-300`}>
+                Upload your Java, Python or JavaScript code to automatically detect vulnerabilities
                 and generate secure fixes instantly.
               </p>
               <div className='flex flex-wrap gap-4 mb-4'>
-                <div className='flex items-center gap-2 text-sm text-gray-600'>
+                <div className={`flex items-center gap-2 text-sm ${textSecondary} transition-colors duration-300`}>
                   <span className='w-2 h-2 bg-green-500 rounded-full'></span>
-                    <span>Automated Vulnerability Detection</span>
+                  <span>Automated Vulnerability Detection</span>
                 </div>
-                <div className='flex items-center gap-2 text-sm text-gray-600'>
+                <div className={`flex items-center gap-2 text-sm ${textSecondary} transition-colors duration-300`}>
                   <span className='w-2 h-2 bg-green-500 rounded-full'></span>
                   <span>AI-Generated Secure Fixes</span>
                 </div>
-                <div className='flex items-center gap-2 text-sm text-gray-600'>
+                <div className={`flex items-center gap-2 text-sm ${textSecondary} transition-colors duration-300`}>
                   <span className='w-2 h-2 bg-green-500 rounded-full'></span>
                   <span>Multi-Language Support</span>
                 </div>
@@ -166,7 +181,7 @@ const Dashboard = () => {
       
       {/* Quick Start Guide */}
       <DemoCard title="Quick Start Guide" badge="Getting Started">
-        <ol className="list-decimal list-inside space-y-3 text-gray-700">
+        <ol className={`list-decimal list-inside space-y-3 ${textTertiary} transition-colors duration-300`}>
           <li>
             <strong>Select an attack type</strong> from the categories above or use the sidebar navigation.
           </li>
@@ -195,7 +210,7 @@ const Dashboard = () => {
       
       {/* Learning Objectives */}
       <DemoCard title="Learning Objectives" badge="Education">
-        <ul className="list-disc list-inside space-y-2 text-gray-700">
+        <ul className={`list-disc list-inside space-y-2 ${textTertiary} transition-colors duration-300`}>
           <li>Understand common web security vulnerabilities (SQL Injection, XSS, CSRF)</li>
           <li>Recognize vulnerable code patterns and attack vectors</li>
           <li>Learn industry-standard mitigation techniques</li>

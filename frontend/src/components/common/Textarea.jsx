@@ -1,5 +1,6 @@
 import React from 'react';
 import { useSecurityMode } from '../../contexts/SecurityModeContext';
+import { useTheme } from '../../contexts/ThemeContext';
 
 const Textarea = ({ 
   label, 
@@ -13,21 +14,31 @@ const Textarea = ({
   ...props 
 }) => {
   const { mode } = useSecurityMode();
+  const { isDarkMode } = useTheme();
   
   const textareaId = `textarea-${label?.toLowerCase().replace(/\s+/g, '-') || 'textarea'}`;
   
-  const baseClasses = 'w-full px-3 py-2 border rounded-md transition-colors duration-200 focus-ring resize-y';
+  // Theme-aware colors
+  const labelColor = isDarkMode ? 'text-gray-300' : 'text-gray-700';
+  const textareaBg = isDarkMode ? 'bg-gray-700' : 'bg-white';
+  const textareaText = isDarkMode ? 'text-gray-200' : 'text-gray-900';
+  const textareaBorder = isDarkMode ? 'border-gray-600' : 'border-gray-300';
+  const placeholderColor = isDarkMode ? 'placeholder-gray-400' : 'placeholder-gray-400';
+  
+  const baseClasses = `w-full px-3 py-2 border rounded-md transition-colors duration-200 focus-ring resize-y ${textareaBg} ${textareaText} ${placeholderColor}`;
+  
   const modeClasses = mode === 'secure' 
-    ? 'border-gray-300 focus:border-green-500 focus:ring-green-500' 
-    : 'border-gray-300 focus:border-red-500 focus:ring-red-500';
-  const errorClasses = error ? 'border-red-500 focus:border-red-500 focus:ring-red-500' : '';
+    ? 'focus:border-green-500 focus:ring-green-500' 
+    : 'focus:border-red-500 focus:ring-red-500';
+  
+  const errorClasses = error ? 'border-red-500 focus:border-red-500 focus:ring-red-500' : textareaBorder;
   
   return (
     <div className="w-full">
       {label && (
         <label 
           htmlFor={textareaId} 
-          className="block text-sm font-medium text-gray-700 mb-1"
+          className={`block text-sm font-medium ${labelColor} mb-1 transition-colors duration-300`}
         >
           {label}
           {required && <span className="text-red-500 ml-1">*</span>}

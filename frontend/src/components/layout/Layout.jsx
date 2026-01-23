@@ -2,10 +2,17 @@ import React from 'react';
 import Header from './Header';
 import Sidebar from './Sidebar';
 import AttackerPanel from '../attacker/AttackerPanel';
+import { useTheme } from '../../contexts/ThemeContext';
 
 const Layout = ({ children, showSidebar = true }) => {
+
+  const {isDarkMode} = useTheme();
+
+  const bgColor = isDarkMode ? 'bg-gray-900' : 'bg-white';
+  const textColor = isDarkMode ? 'text-gray-100' : 'text-gray-900';
+
   return (
-    <div className="min-h-screen bg-white">
+    <div className={`min-h-screen ${bgColor} ${textColor} transition-colors duration-300`}>
       <Header />
       <div className="flex pt-16">
         {showSidebar && <Sidebar />}

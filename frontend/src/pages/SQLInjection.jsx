@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useSecurityMode } from '../contexts/SecurityModeContext';
+import { useTheme } from '../contexts/ThemeContext';
 import DemoCard from '../components/common/DemoCard';
 import Input from '../components/common/Input';
 import Button from '../components/common/Button';
@@ -11,6 +12,7 @@ import { sqlAPI } from '../services/api';
 
 const SQLInjection = () => {
   const { mode, isSecure } = useSecurityMode();
+  const { isDarkMode } = useTheme();
 
   const [loginForm, setLoginForm] = useState({ username: '', password: '' });
   const [searchQuery, setSearchQuery] = useState('');
@@ -18,9 +20,13 @@ const SQLInjection = () => {
   const [loginResult, setLoginResult] = useState(null);
   const [searchResults, setSearchResults] = useState(null);
 
-  // ✅ Separate loading states
   const [loginLoading, setLoginLoading] = useState(false);
   const [searchLoading, setSearchLoading] = useState(false);
+
+  // Theme-aware colors
+  const textPrimary = isDarkMode ? 'text-gray-100' : 'text-gray-900';
+  const textSecondary = isDarkMode ? 'text-gray-400' : 'text-gray-600';
+  const textLabel = isDarkMode ? 'text-gray-300' : 'text-gray-700';
 
   /* ---------------- LOGIN ---------------- */
   const handleLogin = async (e) => {
@@ -84,10 +90,10 @@ const SQLInjection = () => {
 
       {/* HEADER */}
       <div>
-        <h1 className="text-3xl font-bold text-gray-900 mb-2">
+        <h1 className={`text-3xl font-bold ${textPrimary} mb-2 transition-colors duration-300`}>
           SQL Injection Demo
         </h1>
-        <p className="text-gray-600">
+        <p className={`${textSecondary} transition-colors duration-300`}>
           Learn how SQL injection attacks work and how to prevent them using parameterized queries.
         </p>
       </div>
@@ -112,7 +118,7 @@ const SQLInjection = () => {
         </p>
         <p>
           <strong>Example:</strong>{' '}
-          <code className="bg-gray-200 px-1 rounded">
+          <code className={`${isDarkMode ? 'bg-gray-700 text-gray-200' : 'bg-gray-200 text-gray-900'} px-1 rounded transition-colors duration-300`}>
             admin' OR '1'='1
           </code>
         </p>
@@ -144,7 +150,7 @@ const SQLInjection = () => {
         </form>
 
         <div className="mt-6">
-          <h4 className="text-sm font-semibold mb-2">Generated SQL Query</h4>
+          <h4 className={`text-sm font-semibold ${textLabel} mb-2 transition-colors duration-300`}>Generated SQL Query</h4>
           <CodeBlock code={generateSQLQuery('login')} language="sql" />
         </div>
 
@@ -176,7 +182,7 @@ const SQLInjection = () => {
         </form>
 
         <div className="mt-6">
-          <h4 className="text-sm font-semibold mb-2">Generated SQL Query</h4>
+          <h4 className={`text-sm font-semibold ${textLabel} mb-2 transition-colors duration-300`}>Generated SQL Query</h4>
           <CodeBlock code={generateSQLQuery('search')} language="sql" />
         </div>
 

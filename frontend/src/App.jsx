@@ -25,58 +25,61 @@ const RequestLoggerInitializer = () => {
 
 function App() {
   return (
-    <SecurityModeProvider>
-      <RequestLoggerProvider>
-        <RequestLoggerInitializer />
-        <ModeTransition />
-        <Router>
-        <Routes>
-          <Route 
-            path="/" 
-            element={
-              <Layout showSidebar={false}>
-                <Dashboard />
-              </Layout>
-            } 
-          />
-          <Route 
-            path="/sql-injection" 
-            element={
-              <Layout>
-                <SQLInjection />
-              </Layout>
-            } 
-          />
-          <Route 
-            path="/xss" 
-            element={
-              <Layout>
-                <XSS />
-              </Layout>
-            } 
-          />
-          <Route 
-            path="/csrf" 
-            element={
-              <Layout>
-                <CSRF />
-              </Layout>
-            } 
-          />
-          <Route 
-            path="code-regenerator"
-            element={
-              <Layout>
-                <CodeRegenerator />
-              </Layout>
-            }
-           />
-        </Routes>
-        </Router>
-      </RequestLoggerProvider>
-      <ThemeProvider />
-    </SecurityModeProvider>
+    <ThemeProvider>
+      <SecurityModeProvider>
+        <RequestLoggerProvider>
+          <RequestLoggerInitializer />
+          <ModeTransition />
+          <Router>
+            <Routes>
+              <Route 
+                path="/" 
+                element={
+                  <Layout showSidebar={false}>
+                    <Dashboard />
+                  </Layout>
+                } 
+              />
+              <Route 
+                path="/sql-injection" 
+                element={
+                  <Layout>
+                    <SQLInjection />
+                  </Layout>
+                } 
+              />
+              <Route 
+                path="/xss" 
+                element={
+                  <Layout>
+                    <XSS />
+                  </Layout>
+                } 
+              />
+              <Route 
+                path="/csrf" 
+                element={
+                  <Layout>
+                    <CSRF />
+                  </Layout>
+                } 
+              />
+              <Route 
+                path="/code-regenerator"
+                element={
+                  <Layout>
+                    <CodeRegenerator />
+                  </Layout>
+                }
+              />
+            </Routes>
+          </Router>
+        </RequestLoggerProvider>
+      </SecurityModeProvider>
+    </ThemeProvider>
   );
 }
+
+
 
 export default App;
