@@ -2,11 +2,13 @@ spring:
   application:
     name: securescape-backend
 
+
   datasource:
     url: jdbc:postgresql://ep-long-lab-ahr27ih6-pooler.c-3.us-east-1.aws.neon.tech:5432/neondb?sslmode=require
     username: neondb_owner
     password: "npg_ux6qoAWt2rsH"
     driver-class-name: org.postgresql.Driver
+
 
   hikari:
       maximum-pool-size: 5
@@ -16,6 +18,7 @@ spring:
       keepalive-time: 15000      # 🔥 keep connection fresh
       connection-timeout: 30000
       validation-timeout: 5000
+
 
   jpa:
     hibernate:
@@ -27,10 +30,25 @@ spring:
         jdbc:
           time_zone: UTC
 
-server:
-  port: 5000
 
+server:
+  port: 8080
+
+
+# ML Model Configuration
+ml:
+  model:
+    base:
+      url: http://localhost:5000
+
+
+# Logging Configuration (merged into one section)
 logging:
   level:
     root: INFO
-    org.hibernate.SQL: DEBUG
+    org:
+      hibernate:
+        SQL: DEBUG
+    com:
+      securescape: INFO
+    org.springframework.web: INFO
