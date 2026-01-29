@@ -8,6 +8,7 @@ public class AnalysisResult {
     private boolean hasVulnerabilities;
     private List<Vulnerability> vulnerabilities;
     private String message;
+    private String fixedCode;  // Generated secure code
 
     public AnalysisResult() {}
 
@@ -18,6 +19,16 @@ public class AnalysisResult {
         this.hasVulnerabilities = hasVulnerabilities;
         this.vulnerabilities = vulnerabilities;
         this.message = message;
+    }
+
+    public AnalysisResult(String language, boolean hasVulnerabilities,
+                          List<Vulnerability> vulnerabilities, String message, String fixedCode) {
+        
+        this.language = language;
+        this.hasVulnerabilities = hasVulnerabilities;
+        this.vulnerabilities = vulnerabilities;
+        this.message = message;
+        this.fixedCode = fixedCode;
     }
 
     public String getLanguage() {
@@ -43,6 +54,12 @@ public class AnalysisResult {
     }
     public void setMessage(String message) {
         this.message = message;
+    }
+    public String getFixedCode() {
+        return fixedCode;
+    }
+    public void setFixedCode(String fixedCode) {
+        this.fixedCode = fixedCode;
     }
 
     public static class Vulnerability {

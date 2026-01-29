@@ -8,7 +8,9 @@ export default defineConfig({
     port: 3000,
     proxy: {
       '/api': {
-        target: 'http://localhost:5000',
+        // Proxy all API calls to the Spring Boot backend.
+        // The backend will in turn talk to the ML model service.
+        target: 'http://localhost:8080',
         changeOrigin: true
       }
     }

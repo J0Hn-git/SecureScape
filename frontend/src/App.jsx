@@ -11,6 +11,7 @@ import XSS from './pages/XSS';
 import CSRF from './pages/CSRF';
 import CodeRegenerator from './pages/CodeRegenerator';
 import { ThemeProvider } from './contexts/ThemeContext';
+import Login from './pages/Login';
 
 // Component to initialize request logger
 const RequestLoggerInitializer = () => {
@@ -32,6 +33,10 @@ function App() {
           <ModeTransition />
           <Router>
             <Routes>
+              <Route 
+              path='/login'
+              element={<Login />}
+              />
               <Route 
                 path="/" 
                 element={

@@ -116,6 +116,7 @@ export const getEndpoint = (path, mode = 'insecure') => {
 export const sqlAPI = {
   login: (credentials, mode) => 
     api.post(getEndpoint('/sql/login', mode), credentials),
+
   
   search: (query, mode) => 
     api.get(getEndpoint('/sql/search', mode), { params: { q: query } }),
@@ -137,6 +138,12 @@ export const csrfAPI = {
   
   transfer: (data, mode) => 
     api.post(getEndpoint('/csrf/transfer', mode), data),
+};
+
+// Code Analysis endpoint
+export const analyzeAPI = {
+  analyze: (language, code) => 
+    api.post('/analyze', { language, code }),
 };
 
 export default api;
